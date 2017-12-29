@@ -5,7 +5,7 @@
         <title>{% block title %}{% endblock %}</title>
         <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
         <link rel="stylesheet" type="text/css" href="static/main.js">
-        <!-- <link rel="stylesheet" href="static/main.css"> -->
+        <link rel="stylesheet" href="static/main.css">
     </head>
     <body>
         <nav class="navbar navbar-inverse">
@@ -27,21 +27,42 @@
                     <li class="active"><a href="/">课程<span class="sr-only">(current)</span></a></li>
                     <li><a href="#">直播</a></li>
                 </ul>
-                <ul class="nav navbar-nav navbar-right">       
-                    <li><a href="{{ url_for('front.register')}}">注册</a></li>
-                    <li><a href="{{ url_for('front.login')}}">登录</a></li>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if not current_user.is_authenticated %}       
+                        <li><a href="{{ url_for('front.register')}}">注册</a></li>
+                        <li><a href="{{ url_for('front.login')}}">登录</a></li>
+                    {% else %}
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ current_user.username }}<span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">个人主页</a></li>
+                                <li role="seprator" class="divider"></li>
+                                <li><a href="/logout">退出登录</a></li>
+                            </ul>
+                        </li>
+                    {% endif %}
                 </ul>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
         </nav>
         
         <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for categroy, message in messages%}
+                    <div class="alert alert-{{ categroy }} alert-dismissble", role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aira-hidden="true">&times;</span></button>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
             {% block body %}{% endblock %}
             {% block footer %}{% endblock %}
         </div>        
         <!--Bootstrap 依赖jQuery-->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
         <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <!-- <script src="static/main.js"></script> -->
+        <script src="static/main.js"></script>
     </body>
 </html>

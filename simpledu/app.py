@@ -1,7 +1,8 @@
 from flask import Flask, render_template
 from simpledu.config import configs  # 传入configs字典
-from simpledu.models import db, Course
+from simpledu.models import db, User
 from flask_migrate import Migrate
+from flask_login import LoginManager
 
 
 def create_app(config):
@@ -9,11 +10,8 @@ def create_app(config):
     """
     app = Flask(__name__)
     app.config.from_object(configs.get(config))
-    # SQLAlchemy 的初始化方式改为使用 init_app
-    db.init_app(app)
     register_blueprints(app)
-    Migrate(app, db)
-
+    register_extensions(app)
     return app
 
 
@@ -22,3 +20,16 @@ def register_blueprints(app):
     app.register_blueprint(front)
     app.register_blueprint(course)
     app.register_blueprint(admin)
+
+def register_extensions(app):
+    db.init_app(app)
+    Migrate(app, db)
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def user_loader(id):
+        return User.query.get(id)
+
+    login_manager.login_view = 'front.login'
