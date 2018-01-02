@@ -4,6 +4,8 @@ from simpledu.forms import LoginForm, RegisterForm
 from flask import flash
 from flask_login import login_user, login_required, logout_user
 from flask import redirect, url_for
+from flask import request, current_app
+
 # 省略了 url_prefix参数，那么默认就是 '/'
 front = Blueprint('front', __name__)
 
@@ -11,8 +13,15 @@ front = Blueprint('front', __name__)
 # 此处url: '/' 代表 url:'/admin'
 @front.route('/')
 def index():
-    courses = Course.query.all()
-    return render_template('index.html', courses=courses)
+    # 获取参数中传递过来的页数
+    page = request.args.get('page', default=1, type=int)
+    # 生成分页对象
+    pagination = Course.query.paginate(
+        page=page,
+        per_page=current_app.config['INDEX_PER_PAGE'],
+        error_out=False
+    )
+    return render_template('index.html', pagination=pagination)
 
 
 @front.route('/login', methods=['GET', 'POST'])
@@ -24,6 +33,7 @@ def login():
         login_user(user, form.remember_me.data)
         return redirect(url_for('.index'))
     return render_template('login.html', form=form)
+
 
 @front.route('/logout')
 @login_required
