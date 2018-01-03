@@ -13,8 +13,14 @@ Admin
 			<a href="{{ url_for('admin.courses') }}" class="list-group-item">课程</a>
 		</div>
 
-		{% block opration %}{% endblock %}
+		{% block operation %}
+			<a href="{{ url_for('admin.create_course') }}" type="button" class="btn btn-primary">
+  			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+  			添加课程
+			</a>
+		{% endblock %}
 	</div>
+	
 	<div class="col-md-9">
 		{% block admin %}{% endblock %}
 	</div>
