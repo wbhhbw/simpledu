@@ -39,6 +39,7 @@ class User(Base, UserMixin):
     role = db.Column(db.SmallInteger, default=ROLE_USER)
     job = db.Column(db.String(64))
     publish_courses = db.relationship('Course')
+    host_live = db.relationship('Live')
 
     def __repr__(self):
         return '<User:{}>'.format(self.username)
@@ -111,3 +112,17 @@ class Chapter(Base):
     @property
     def url(self):
         return url_for('course.chapter', course_id=self.course.id, chapter_id=self.id)
+
+
+class Live(Base):
+    __tablename__ = 'live'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), unique=True,
+                     index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'user.id', ondelete='CASCADE'))
+    user = db.relationship('User', uselist=False)
+
+    def __repr__(self):
+        return '<Live:{}>'.format(self.name)

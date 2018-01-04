@@ -14,7 +14,8 @@ def iter_users():
         username='wbh',
         email='wbh@example.com',
         password='123456',
-        job='研发工程师'
+        job='研发工程师',
+        role=30
     )
 
 
