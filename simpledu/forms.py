@@ -80,3 +80,29 @@ class CourseForm(FlaskForm):
         db.session.commit()
         return course
 
+
+class UserForm(FlaskForm):
+    username = StringField(
+        '用户名', validators=[Required(message='用户名不能为空'), Length(3, 24, message='用户名长度要在6~24个字符之间')])
+    email = StringField(
+        '邮箱', validators=[Required(message='邮箱不能为空'), Email(message='请输入合法的email地址')])
+    role = IntegerField('角色', validators=[Required()])
+    submit = SubmitField('提交')
+
+    def validate_role(self, field):
+        if self.role.data not in (10, 20, 30):
+            raise ValidationError('数值不正确，请输入10,20或30')
+
+    def create_user(self):
+        user = User()
+        # 使用课程表单数据填充 user对象
+        self.populate_obj(user)
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def update_user(self, user):
+        self.populate_obj(user)
+        db.session.add(user)
+        db.session.commit()
+        return user

@@ -1,8 +1,8 @@
 from flask import Blueprint, render_template
 from simpledu.decorators import admin_required
 from flask import request, current_app
-from simpledu.models import Course, db
-from simpledu.forms import CourseForm
+from simpledu.models import Course, db, User
+from simpledu.forms import CourseForm, UserForm
 from flask import redirect, url_for, flash
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
@@ -59,3 +59,39 @@ def delete_course(course_id):
     db.session.commit()
     flash('课程删除成功', 'success')
     return redirect(url_for('admin.courses'))
+
+
+@admin.route('/users')
+@admin_required
+def users():
+    page = request.args.get('page', default=1, type=int)
+    pagination = User.query.paginate(
+        page=page,
+        per_page=current_app.config['ADMIN_PER_PAGE'],
+        error_out=False
+    )
+    return render_template('admin/users.html', pagination=pagination)
+
+
+@admin.route('/users/create', methods=['GET', 'POST'])
+@admin_required
+def create_user():
+    form = UserForm()
+    if form.validate_on_submit():
+        form.create_user()
+        flash('用户创建成功', 'success')
+        return redirect(url_for('admin.users'))
+    return render_template('admin/create_user.html', form=form)
+
+
+@admin.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+@admin_required
+def edit_user(user_id):
+    user = User.query.get_or_404(user_id)
+    # 在创建 form 对象时传入了 user 对象，这样 wtforms 就会在对应的 field 中自动填入该课程的数据。
+    form = UserForm(obj=user)
+    if form.validate_on_submit():
+        form.update_user(user)
+        flash('用户更新成功', 'success')
+        return redirect(url_for('admin.users'))
+    return render_template('admin/edit_user.html', form=form, user=user)

@@ -2,13 +2,13 @@
 {% from "macros.html" import render_pagination %}
 
 {% block title %}
-Admin - courses
+Admin - users
 {% endblock %}
 
 {% block operation %}
-<a href="{{ url_for('admin.create_course') }}" type="button" class="btn btn-primary">
+<a href="{{ url_for('admin.create_user') }}" type="button" class="btn btn-primary">
 	<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
-	添加课程
+	添加用户
 </a>
 {% endblock %}
 
@@ -17,23 +17,24 @@ Admin - courses
 	<thead>
 		<tr>
 			<th>ID</th>
-			<th>名称</th>
-			<th>作者</th>
-			<th>操作</th>
+			<th>用户名</th>
+			<th>邮箱</th>
+			<th>Role</th>
 		</tr>
 		<tbody>
-			{% for course in pagination.items %}
+			{% for user in pagination.items %}
 			<tr>
-				<td>{{ course.id }}</td>
-				<td>{{ course.name }}</td>
-				<td>{{ course.author.username }}</td>
+				<td>{{ user.id }}</td>
+				<td>{{ user.username }}</td>
+				<td>{{ user.email }}</td>
+				<td>{{ user.role }}</td>
 				<td>
 					<!-- 使用了两个 Bootstrap的icon代表编辑和删除操作 -->
 					<div class="btn-group" role="group">
-						<a href="{{ url_for('admin.edit_course', course_id=course.id) }}" type="button" class="btn btn-default" title="编辑">
+						<a href="{{ url_for('admin.edit_user', user_id=user.id)}}" type="button" class="btn btn-default" title="编辑">
 							<span class="glyphicon glyphicon-pencil" title="编辑" aria-hidden="true"></span>
 						</a>
-						<a href="{{ url_for('admin.delete_course', course_id=course.id) }}" type="button" class="btn btn-default" title="删除">
+						<a href="" type="button" class="btn btn-default" title="删除">
 							<span class="glyphicon glyphicon-trash" title="删除" aria-hidden="true"></span>
 						</a>
 					</div>
