@@ -19,9 +19,8 @@ class RegisterForm(FlaskForm):
 
     def create_user(self):
         user = User()
-        user.username = self.username.data
-        user.email = self.email.data
-        user.password = self.password.data
+        # 使用用户表单数据填充 user对象
+        self.populate_obj(user)
         db.session.add(user)
         db.session.commit()
         return user
@@ -36,19 +35,19 @@ class RegisterForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    email = StringField(
-        '邮箱', validators=[Required(), Email(message='请输入合法的email地址')])
+    username = StringField(
+        '用户名', validators=[Required(message='用户名不能为空')])
     password = PasswordField(
-        '密码', validators=[Required(), Length(6, 24, message='密码长度要在6~24个字符之间')])
+        '密码', validators=[Required()])
     remember_me = BooleanField('记住我')
     submit = SubmitField('提交')
 
-    def validate_email(self, field):
-        if field.data and not User.query.filter_by(email=field.data).first():
-            raise ValidationError('邮箱未注册')
+    def validate_username(self, field):
+        if field.data and not User.query.filter_by(username=field.data).first():
+            raise ValidationError('用户未注册')
 
     def validate_password(self, field):
-        user = User.query.filter_by(email=self.email.data).first()
+        user = User.query.filter_by(username=self.username.data).first()
         if user and not user.check_password(field.data):
             raise ValidationError('密码错误')
 
@@ -81,11 +80,7 @@ class CourseForm(FlaskForm):
         return course
 
 
-class UserForm(FlaskForm):
-    username = StringField(
-        '用户名', validators=[Required(message='用户名不能为空'), Length(3, 24, message='用户名长度要在6~24个字符之间')])
-    email = StringField(
-        '邮箱', validators=[Required(message='邮箱不能为空'), Email(message='请输入合法的email地址')])
+class UserForm(RegisterForm):
     role = IntegerField('角色', validators=[Required()])
     submit = SubmitField('提交')
 
@@ -93,13 +88,11 @@ class UserForm(FlaskForm):
         if self.role.data not in (10, 20, 30):
             raise ValidationError('数值不正确，请输入10,20或30')
 
-    def create_user(self):
-        user = User()
-        # 使用课程表单数据填充 user对象
-        self.populate_obj(user)
-        db.session.add(user)
-        db.session.commit()
-        return user
+    def validate_username(self, field):
+        pass
+
+    def validate_email(self, field):
+        pass
 
     def update_user(self, user):
         self.populate_obj(user)

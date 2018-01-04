@@ -28,7 +28,7 @@ def index():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(email=form.email.data).first()
+        user = User.query.filter_by(username=form.username.data).first()
         # 第一个参数是 User 对象，第二个参数是个布尔值，告诉 flask-login 是否需要记住该用户。
         login_user(user, form.remember_me.data)
         return redirect(url_for('.index'))

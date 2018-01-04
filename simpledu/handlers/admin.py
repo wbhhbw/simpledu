@@ -95,3 +95,13 @@ def edit_user(user_id):
         flash('用户更新成功', 'success')
         return redirect(url_for('admin.users'))
     return render_template('admin/edit_user.html', form=form, user=user)
+
+
+@admin.route('/users/<int:user_id>/delete')
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    flash('用户删除成功', 'success')
+    return redirect(url_for('admin.users'))
