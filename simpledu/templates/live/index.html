@@ -1,17 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}Live{% endblock %}
-
+{% block head_css %}
+{{ super() }}
+<style>
+#message-box {
+    background-color: #eee;
+    font-size: 15px;
+    padding: 3px 0 0 5px;
+    width: 100%;
+    height: 455px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+      overflow: scroll; /* 显示滚动条 */
+</style>
+{% endblock %}
 
 {% block body %}
 <div class="row">
-	<div>
-		<span>{{ live.name }} - {{ live.user.username }}</span>
-	</div>
   <div class="col-md-9">
   	<video id="videoElement" width="100%" height="500px" controls="controls"></video>
   </div>
   <div class="col-md-3">
+  	<div id="message-box">  		
+  	</div>
+  	<div class="input-group" id="message-form">
+  		<input type="text" class="from-control">
+  		<span class="input-group-btn">
+  			<button class="btn btn-primary" type="button">发言</button>
+  		</span>
+  	</div><!--/input-group -->
   </div>
 </div>
 {% endblock %}
@@ -30,12 +47,41 @@ if (flvjs.isSupported()){
 		//是否是直播
 		isLive: true,
 		//直播流地址
-		url:'https://dl.live-play.acgvideo.com/live-dl/799477/live_8192168_5923385.flv?wsSecret=fcfef8bb7ec060a24dd76e642e1a682e&wsTime=1515037793'
+		url:'https://qn.live-play.acgvideo.com/live-qn/621115/live_110631_5953326.flv?wsSecret=39b4881f705909d3245186cd06d3387e&wsTime=1515217563'
 	});
 	flvPlayer.attachMediaElement(videoElement);
 	flvPlayer.load();
 	//播放直播
 	flvPlayer.play();
 }
+</script>
+<script>
+  var inbox = new WebSocket('ws://'+ location.host + "/ws/recv");
+  var outbox = new WebSocket('ws://'+ location.host + "/ws/send");
+
+  inbox.onmessage = function(message) {
+    console.log(message);
+    var data = JSON.parse(message.data);
+    $("#message-box").append('<p><b>' + data.username + '</b>' + ': ' + data.text + '</p>');
+  };
+
+  inbox.onclose = function(){
+    this.inbox = new WebSocket('ws://' + location.host + "/ws/recv")
+  };
+
+  outbox.onclose = function(){
+    this.outbox = new WebSocket('ws://' + location.host + "/ws/send")
+  };
+
+  $("#message-form button").on("click", function(event){
+    // 获取用户发言内容
+    text = $('#message-form input').val();
+    // 获取用户名
+    username = $('#username').text();
+    // 发送数据到websocket的后台处理接口
+    outbox.send(JSON.stringify({username: username, text: text}));
+    // 提交后，将输入框设置为空
+    $("# message-form input").val('');
+  });
 </script>
 {% endblock %}

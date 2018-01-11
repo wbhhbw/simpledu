@@ -5,5 +5,4 @@ live = Blueprint('live', __name__, url_prefix='/live')
 
 @live.route('/')
 def index():
-	live1 = Live.query.get_or_404(2)
-	return render_template('live/index.html', live=live1)
+	return render_template('live/index.html')
